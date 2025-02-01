@@ -58,14 +58,14 @@ def clean_data(data: pd.DataFrame, train_index: int = 0.7) -> List[torch.Tensor]
     """
     Steps:
     1) Check for missing data:
-        If more than half a column is missing, remove the column
-        For numerical missing data, fill it in with the mean of the column
-        For categorical missing data, fill it in with the mode of the column
+        - If more than half a column is missing, remove the column
+        - For numerical missing data, fill it in with the mean of the column
+        - For categorical missing data, fill it in with the mode of the column
     
     2) One-hot encode categorical data for easier interpretation of data
     
     3) Standardize numerical columns using z-score normalization
-        to avoid having larger numbers a greater influence on the weights
+        to avoid larger numbers having a greater influence on the weights/bias
     
     4) Split the dataframe into four tensors:
         x_train
@@ -87,6 +87,7 @@ def clean_data(data: pd.DataFrame, train_index: int = 0.7) -> List[torch.Tensor]
     # shuffling for randomization
     standardized_df = standardized_df.sample(frac=1).reset_index(drop=True)
 
+    # splitting the datasets
     split_index = int(train_index * len(standardized_df))
 
     train_df = standardized_df.iloc[:split_index]
