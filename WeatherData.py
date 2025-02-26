@@ -29,7 +29,7 @@ def fetch_data(start_date: int,
     # data = response.json()
 
     """
-    Delete later
+    Delete later 
     """
     with open("data.json", "r") as file:
         data = json.load(file)
