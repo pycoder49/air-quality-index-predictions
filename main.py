@@ -1,11 +1,13 @@
 from datetime import datetime
 from NeuralNetwork import NeuralNetwork
+from dotenv import load_dotenv
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
-import numpy as np
 import os
 import torch
 import WeatherData
+
+load_dotenv()
 
 # constants
 APPID = os.getenv("APPID")
@@ -19,10 +21,8 @@ def get_data() -> [torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
     """
     # getting data
     data = WeatherData.fetch_data(START_DATE, END_DATE, APPID)
-
     # obtaining datasets
     datasets = WeatherData.clean_data(data)
-
     # datasets = [x_train, y_train, x_test, y_test]
     return datasets
 
@@ -77,14 +77,11 @@ def plot_training_loss(losses):
 
     :param losses: List of loss values recorded during training.
     """
-    x_axis_linear = np.arange(len(losses))
-    plt.figure(figsize=(8, 5))
-    plt.plot(x_axis_linear, losses, marker='o', linestyle='-', color='b', label="Training Loss")
+    plt.plot(losses, label="Loss")
     plt.xlabel("Epochs")
     plt.ylabel("Loss")
-    plt.title("Training Loss Over Time")
+    plt.title("Loss Over Time")
     plt.legend()
-    plt.grid(True)
     plt.show()
 
 
@@ -105,36 +102,14 @@ def main():
     y_one_hot_train = encode(y_train)
     y_one_hot_test = encode(y_test)
 
-    # """
-    # For testing purposes
-    # """
-    # # shapes of weights
-    # print("Shapes of Weights")
-    # for tensor in nn.w:
-    #     print(tensor.shape)
-    # print("\n")
-    #
-    # # shapes of the bias
-    # print("Shapes of Biases")
-    # for tensor in nn.b:
-    #     print(tensor.shape)
-    # print("\n")
-    #
-    # print("Shapes of Weight Moments")
-    # for tensor in nn.m_w:
-    #     print(tensor.shape)
-    # print("\n")
-    #
-    # print("Shapes of Bias Moments")
-    # for tensor in nn.m_b:
-    #     print(tensor.shape)
-    # print("\n")
-
     """ training loop """
-    # input size = 8 (excluding target feature)
-    # output size = 3
-    # 2 hidden layers --> HL1 = 10 neurons, HL2 = 5 neurons
-    network = NeuralNetwork(10, 5, input_size=8, output_size=3, learning_rate=0.1)
+    network = NeuralNetwork(20, 15, 10, input_size=8, output_size=3, learning_rate=0.1)
+    # network stats:
+    # Input layer:      8
+    # Hidden layer 1:   15
+    # Hidden layer 2:   10
+    # Hidden layer 3:   5
+    # Output layer:     3
 
     epochs = 1000
     losses = []
@@ -150,20 +125,27 @@ def main():
         network.backprop(x_train, y_one_hot_train)
 
         # updating weights and biases using adam optimizer
-        network.adam_step()
+        network.update_parameters(adam_step=True)
 
         # printing loss for tracking -- every 100 epochs
         if epoch % 100 == 0:
-            print(f"Epoch {epoch} loss: {loss.item()}")
+            print(f"Epoch {epoch} loss: {loss}")
         elif epoch == epochs - 1:
             print(f"Epoch {epochs} loss: {losses[-1]}")
 
+    # getting one hot encoded predictions
     final_probabilities = network.forward(x_train)
     predicted_labels = torch.argmax(final_probabilities, dim=1)
     one_hot_predictions = F.one_hot(predicted_labels, num_classes=3)
     print(one_hot_predictions)
 
+    # mapping encoding to "good", "moderate", and "bad"
+    class_indices = torch.argmax(one_hot_predictions, dim=1)
+    label_mapping = {0: "good", 1: "moderate", 2: "bad"}
+    predicted_labels = [label_mapping[i.item()] for i in class_indices]
+
     print(f"Accuracy: {get_accuracy(one_hot_predictions, y_one_hot_train): .2f}%")
+    plot_training_loss(losses)
 
 
 if __name__ == "__main__":

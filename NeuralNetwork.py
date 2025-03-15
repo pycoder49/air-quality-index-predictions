@@ -101,52 +101,45 @@ class NeuralNetwork:
             if i != 1:      # delta for the next iteration
                 delta = torch.matmul(delta, self.w[i - 1]) * self._relu_derivative(self.Z[i - 2])
 
-    def adam_step(self) -> None:
-        # Increment time step
-        self.t += 1
-
+    def update_parameters(self, adam_step: bool = False) -> None:
         # extracting weights and bias
         dw = [grad[0] for grad in self.grads]       # [dw3, dw2, dw1...]
         db = [grad[1] for grad in self.grads]       # [db3, db2, db1...]
-
-        # print("### LENGTH OF GRADS #####")
-        # print(f"Grads list length: {len(self.grads)} \n")
-        #
-        # print("##### LENGTH OF DW AND DB IN ADAM FUNCTION")
-        # print(f"dw: {len(dw)}")
-        # print(f"db: {len(db)}")
-        # print("\n")
 
         # reversing the list so that the list is ascending
         dw = dw[::-1]
         db = db[::-1]
 
-        # print("\n\n\n")
-        # print(f"shape of m_w(0): {self.m_w[0].shape}")
-        # print(f"shape of dw[0]:   {dw[0].shape}")
-        # print("\n\n\n")
+        if adam_step:
+            # Increment time step
+            self.t += 1
 
-        # updating part
-        for i in range(len(self.w)):
-            # updating momentum
-            self.m_w[i] = self.beta1*self.m_w[i] + (1-self.beta1)*dw[i].T
-            self.m_b[i] = self.beta1*self.m_b[i] + (1-self.beta1)*db[i]
+            # updating part
+            for i in range(len(self.w)):
+                # updating momentum
+                self.m_w[i] = self.beta1*self.m_w[i] + (1-self.beta1)*dw[i].T
+                self.m_b[i] = self.beta1*self.m_b[i] + (1-self.beta1)*db[i]
 
-            # update velocity
-            self.v_w[i] = self.beta2*self.v_w[i] + (1-self.beta2)*(dw[i].T**2)
-            self.v_b[i] = self.beta2*self.v_b[i] + (1-self.beta2)*(db[i]**2)
+                # update velocity
+                self.v_w[i] = self.beta2*self.v_w[i] + (1-self.beta2)*(dw[i].T**2)
+                self.v_b[i] = self.beta2*self.v_b[i] + (1-self.beta2)*(db[i]**2)
 
-            # computing bias-corrected moments and velocities
-            m_w_corrected = self.m_w[i] / (1 - self.beta1 ** self.t)
-            m_b_corrected = self.m_b[i] / (1 - self.beta1 ** self.t)
-            v_w_corrected = self.v_w[i] / (1 - self.beta2 ** self.t)
-            v_b_corrected = self.v_b[i] / (1 - self.beta2 ** self.t)
+                # computing bias-corrected moments and velocities
+                m_w_corrected = self.m_w[i] / (1 - self.beta1 ** self.t)
+                m_b_corrected = self.m_b[i] / (1 - self.beta1 ** self.t)
+                v_w_corrected = self.v_w[i] / (1 - self.beta2 ** self.t)
+                v_b_corrected = self.v_b[i] / (1 - self.beta2 ** self.t)
 
-            # updating the parameters
-            self.w[i] = self.w[i] - self.learning * m_w_corrected / (torch.sqrt(v_w_corrected) + self.epsilon)
-            self.b[i] = self.b[i] - self.learning * m_b_corrected / (torch.sqrt(v_b_corrected) + self.epsilon)
+                # updating the parameters
+                self.w[i] = self.w[i] - self.learning * m_w_corrected / (torch.sqrt(v_w_corrected) + self.epsilon)
+                self.b[i] = self.b[i] - self.learning * m_b_corrected / (torch.sqrt(v_b_corrected) + self.epsilon)
+        else:
+            # normal updates without momentum and velocities
+            for i in range(len(self.w)):
+                self.w[i] = self.w[i] - self.learning * dw[i].T
+                self.b[i] = self.b[i] - self.learning * db[i]
 
-    def calculate_loss(self, predictions: torch.tensor, y: torch.Tensor) -> torch.Tensor:
+    def calculate_loss(self, predictions: torch.tensor, y: torch.Tensor) -> float:
         """
         Cross Entropy Loss
 
@@ -156,12 +149,12 @@ class NeuralNetwork:
         """
         return -torch.mean(torch.sum(y * torch.log(predictions + 1e-8), dim=1))  # mean loss
 
-    def _relu(self, z) -> torch.Tensor:
+    def _relu(self, z: torch.Tensor) -> torch.Tensor:
         return torch.maximum(torch.tensor(0.0), z)
 
     def _relu_derivative(self, x: torch.Tensor) -> torch.Tensor:
         return (x > 0).float()
 
-    def _softmax(self, z) -> torch.Tensor:
+    def _softmax(self, z: torch.Tensor) -> torch.Tensor:
         exp_z = torch.exp(z - torch.max(z, dim=1, keepdim=True).values)
         return exp_z / torch.sum(exp_z, dim=1, keepdim=True)  # sum over classes

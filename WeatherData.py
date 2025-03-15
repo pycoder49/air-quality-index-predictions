@@ -1,6 +1,5 @@
 from typing import List
 import pandas as pd
-import json
 import torch
 import requests
 
@@ -25,14 +24,9 @@ def fetch_data(start_date: int,
         "end": end_date,
         "appid": app_id
     }
-    # response = requests.get("http://api.openweathermap.org/data/2.5/air_pollution/history", params=parameters)
-    # data = response.json()
+    response = requests.get("http://api.openweathermap.org/data/2.5/air_pollution/history", params=parameters)
+    data = response.json()
 
-    """
-    Delete later 
-    """
-    with open("data.json", "r") as file:
-        data = json.load(file)
     data_list = data["list"]  # 35600 entries for 10 years
 
     # making dataframe
@@ -59,7 +53,7 @@ def clean_data(data: pd.DataFrame, train_index: int = 0.7) -> List[torch.Tensor]
     Steps:
     1) Check for missing data:
         - If more than half a column is missing, remove the column
-        - For numerical missing data, fill it in with the mean of the column
+        - For numerical missing data, fill it in with   the mean of the column
         - For categorical missing data, fill it in with the mode of the column
     
     2) One-hot encode categorical data for easier interpretation of data
@@ -82,6 +76,7 @@ def clean_data(data: pd.DataFrame, train_index: int = 0.7) -> List[torch.Tensor]
     mean = data.mean()
     std = data.std()
     standardized_df = (data - mean) / std
+
     standardized_df["aqi"] = target_col     # adding back the target col
 
     # shuffling for randomization
