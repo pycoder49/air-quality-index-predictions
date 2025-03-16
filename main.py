@@ -106,9 +106,9 @@ def main():
     network = NeuralNetwork(20, 15, 10, input_size=8, output_size=3, learning_rate=0.1)
     # network stats:
     # Input layer:      8
-    # Hidden layer 1:   15
-    # Hidden layer 2:   10
-    # Hidden layer 3:   5
+    # Hidden layer 1:   20
+    # Hidden layer 2:   15
+    # Hidden layer 3:   10
     # Output layer:     3
 
     epochs = 1000
