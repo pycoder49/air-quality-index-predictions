@@ -22,4 +22,5 @@ Trained the model over the data.
    - Neuron count: 8, 20, 15, 10, 3
 3. Loss over time
 
+![image](https://github.com/user-attachments/assets/799f2025-eda4-4aa6-bf33-1ce81dffeae7)
 ![loss](https://github.com/user-attachments/assets/9c26ceb7-e4da-4c79-8663-2f4f42c81670)
