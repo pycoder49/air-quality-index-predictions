@@ -1,4 +1,4 @@
-## air-quality-index-predictions
+# air-quality-index-predictions
 Implementing a neural network allows customizability for the number of hidden layers and neurons in each layer.
 Implemented Adam optimizer using both momentum and velocities for weights and biases.
 
@@ -6,7 +6,7 @@ Used OpenWeather Air-Pollution API to get data from Jan 1st, 2015 to Jan 1st, 20
 
 Trained the model over the data.
 
-# Logistics:
+### Logistics:
 1. From OpenWeather API:
    - Air quality index ranges from 1-5
    - This project follows this encoding:
@@ -20,5 +20,6 @@ Trained the model over the data.
 2. Model accuracy post-training: 92.03%
    - Layout used: Input, HL1, HL2, HL3, Output
    - Neuron count: 8, 20, 15, 10, 3
+3. Loss over time
 
 ![loss](https://github.com/user-attachments/assets/9c26ceb7-e4da-4c79-8663-2f4f42c81670)
