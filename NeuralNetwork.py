@@ -77,10 +77,6 @@ class NeuralNetwork:
         Equations used for calculations:
         @ TODO: explain equations used for clarification
 
-        Output layer:
-        dl_dw = dz/dw * da/dz * dL/da
-              = a(l-1) * relu_der(z of last layer) * 2(a_last layer - y)
-
         :param x: input training data tensor
         :param y: one hot encoded tensor
         :return: None
