@@ -17,9 +17,9 @@ Trained the model over the data.
      - [1, 0, 0] = 0
      - [0, 1, 0] = 1
      - [0, 0, 1] = 2
-2. Model accuracy post-training: 92.03%
-   - Layout used: Input, HL1, HL2, HL3, Output
-   - Neuron count: 8, 20, 15, 10, 3
+2. Model accuracy post-training: **92.03%**
+   - *Layout used:* Input, HL1, HL2, HL3, Output
+   - *Neuron count:* 8, 20, 15, 10, 3
 3. Loss over time
 
 ![image](https://github.com/user-attachments/assets/799f2025-eda4-4aa6-bf33-1ce81dffeae7)
